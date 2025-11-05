@@ -1,62 +1,33 @@
-# Configurable Click Shell Command Firefox Extension
+# Alt Click Shell Command
 
-Execute shell commands when using a configurable keyboard shortcut + clicking links.
+Execute shell commands by clicking links with a configurable keyboard shortcut.
 
 ## Installation
 
+Install from the [Firefox Add-ons](https://addons.mozilla.org/) site (coming soon) or load temporarily for development:
+
 1. Download/clone this repository
-2. Install the extension temporarily:
-   - Open `about:debugging`
-   - Click "This Firefox" > "Load Temporary Add-on"
-   - Select `manifest.json` (in the root directory)
+2. Open `about:debugging` in Firefox
+3. Click "This Firefox" > "Load Temporary Add-on"
+4. Select `manifest.json`
 
-3. Install native messaging host:
-
-   **macOS:**
-   - Edit `altclickshell.json` to point to the absolute path of `native_host.py`
-   - Place `altclickshell.json` in: `~/Library/Application Support/Mozilla/NativeMessagingHosts/`
-   - Make `native_host.py` executable: `chmod +x native_host.py`
-
-   **Windows:**
-   - Edit `altclickshell.json` path to point to `native_host.py`
-   - Create registry key: `HKEY_CURRENT_USER\Software\Mozilla\NativeMessagingHosts\altclickshell`
-   - Set default value to path of `altclickshell.json`
-
-   **Linux:**
-   - Place `altclickshell.json` in: `~/.mozilla/native-messaging-hosts/`
-   - Make `native_host.py` executable: `chmod +x native_host.py`
-
-4. Configure command and shortcut in addon options (settings are saved automatically)
+For full functionality, install the native messaging host (see [CONTRIBUTE.md](CONTRIBUTE.md) for details).
 
 ## Usage
 
-1. Configure your preferred keyboard modifier combination (default: Ctrl+Alt on Windows/Linux, Cmd+Alt on Mac)
-2. Set your desired shell command in the extension options (e.g., `open`, `xdg-open`, `echo`)
-3. Use `{{url}}` in your command to insert the clicked link URL (or it will be appended at the end)
-4. Choose from command templates or enter custom commands
-5. Click any link using your configured shortcut
-6. The command will execute with the link URL as an argument
-7. A notification will briefly appear showing the command being run
+1. Set your keyboard modifier (Ctrl+Alt by default)
+2. Configure your shell command in extension options (e.g., `open {{url}}`)
+3. Hold the modifier and click any link
+4. The command executes with the link URL
 
 ## Features
 
-- **Configurable Shortcuts**: Choose any combination of Ctrl, Alt, Shift, Meta/Cmd keys
-- **Command Templates**: Pre-built templates for common tasks (e.g., sending links to Android via ADB)
-- **URL Placeholders**: Use `{{url}}` in commands for flexible URL placement with visual indicators
-- **Live Preview**: See exactly what command will execute before saving
-- **Smart Banner**: Warns when `{{url}}` is missing from commands
-- **Platform Aware**: Automatically adjusts default shortcuts for Windows/Mac/Linux
+- Configurable shortcuts (Ctrl, Alt, Shift, Cmd combinations)
+- Command templates for common tasks
+- URL placeholders for flexible commands
+- Live preview of executed commands
+- Platform-aware defaults
 
-## Security Warning
+## Security
 
-This extension executes arbitrary shell commands when you use the configured shortcut + click links. Only use trusted commands and be cautious of malicious links.
-
-## Files
-
-- `manifest.json` - Extension manifest
-- `content.js` - Click interception and UI notifications
-- `background.js` - Native messaging communication
-- `native_host.py` - Python script that executes shell commands
-- `altclickshell.json` - Native messaging host manifest
-- `options.html` - Settings page HTML
-- `options.js` - Settings page logic
+This extension runs shell commands from clicked links. Use trusted commands only.
