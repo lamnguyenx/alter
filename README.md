@@ -1,6 +1,6 @@
-# ClickShell
+# ClickShell - Firefox Extension
 
-Execute shell commands by clicking links with a configurable keyboard shortcut.
+A Firefox browser extension that executes shell commands by clicking links with a configurable keyboard shortcut.
 
 ## Installation
 
@@ -20,24 +20,6 @@ Execute shell commands by clicking links with a configurable keyboard shortcut.
 4. Select `manifest.json` from the cloned directory
 
 **Note:** This installation is temporary and will be unloaded when Firefox restarts. Use for testing only.
-
-### Native Messaging Host Setup
-
-For full functionality, install the native messaging host (required for both options):
-
-**macOS:**
-- Edit `altclickshell.json` to point to the absolute path of `native_host.py`
-- Place `altclickshell.json` in: `~/Library/Application Support/Mozilla/NativeMessagingHosts/`
-- Make `native_host.py` executable: `chmod +x native_host.py`
-
-**Windows:**
-- Edit `altclickshell.json` path to point to `native_host.py`
-- Create registry key: `HKEY_CURRENT_USER\Software\Mozilla\NativeMessagingHosts\altclickshell`
-- Set default value to path of `altclickshell.json`
-
-**Linux:**
-- Place `altclickshell.json` in: `~/.mozilla/native-messaging-hosts/`
-- Make `native_host.py` executable: `chmod +x native_host.py`
 
 ## Usage
 
