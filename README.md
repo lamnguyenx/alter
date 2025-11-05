@@ -1,17 +1,43 @@
-# Alt Click Shell Command
+# ClickShell
 
 Execute shell commands by clicking links with a configurable keyboard shortcut.
 
 ## Installation
 
-Install from the [Firefox Add-ons](https://addons.mozilla.org/) site (coming soon) or load temporarily for development:
+### Option 1: Install from GitHub Release (.xpi file)
 
-1. Download/clone this repository
+1. Download the latest `clickshell.xpi` from the [GitHub Releases](https://github.com/lamnguyenx/alter/releases) page
+2. Open Firefox and go to `about:addons`
+3. Click the gear icon (⚙️) > "Install Add-on From File"
+4. Select the downloaded `clickshell.xpi`
+5. If prompted, allow unsigned extensions (set `xpinstall.signatures.required` to `false` in `about:config` for development)
+
+### Option 2: Load Temporarily from Source (Development Only)
+
+1. Clone this repository: `git clone https://github.com/lamnguyenx/alter.git`
 2. Open `about:debugging` in Firefox
 3. Click "This Firefox" > "Load Temporary Add-on"
-4. Select `manifest.json`
+4. Select `manifest.json` from the cloned directory
 
-For full functionality, install the native messaging host (see [CONTRIBUTE.md](CONTRIBUTE.md) for details).
+**Note:** This installation is temporary and will be unloaded when Firefox restarts. Use for testing only.
+
+### Native Messaging Host Setup
+
+For full functionality, install the native messaging host (required for both options):
+
+**macOS:**
+- Edit `altclickshell.json` to point to the absolute path of `native_host.py`
+- Place `altclickshell.json` in: `~/Library/Application Support/Mozilla/NativeMessagingHosts/`
+- Make `native_host.py` executable: `chmod +x native_host.py`
+
+**Windows:**
+- Edit `altclickshell.json` path to point to `native_host.py`
+- Create registry key: `HKEY_CURRENT_USER\Software\Mozilla\NativeMessagingHosts\altclickshell`
+- Set default value to path of `altclickshell.json`
+
+**Linux:**
+- Place `altclickshell.json` in: `~/.mozilla/native-messaging-hosts/`
+- Make `native_host.py` executable: `chmod +x native_host.py`
 
 ## Usage
 

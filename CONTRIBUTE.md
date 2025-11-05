@@ -1,4 +1,4 @@
-# Configurable Click Shell Command Firefox Extension
+# Contributing to ClickShell
 
 Execute shell commands when using a configurable keyboard shortcut + clicking links.
 
