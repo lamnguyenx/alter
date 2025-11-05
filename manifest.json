@@ -4,6 +4,12 @@
   "version": "0.0.1",
   "description": "Execute shell commands on configurable modifier + click links",
 
+  "icons": {
+    "16": "mouse-icon.svg",
+    "48": "mouse-icon.svg",
+    "128": "mouse-icon.svg"
+  },
+
   "permissions": [
     "storage",
     "nativeMessaging",
