@@ -1,0 +1,7 @@
+{
+  "name": "altclickshell",
+  "description": "Alt+Click Shell Command Host",
+  "path": "/path/to/native_host.py",
+  "type": "stdio",
+  "allowed_extensions": ["altclickshell@example.com"]
+}

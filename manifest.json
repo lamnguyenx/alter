@@ -1,0 +1,31 @@
+{
+  "manifest_version": 2,
+  "name": "Alt+Click Shell Command",
+  "version": "0.0.1",
+  "description": "Execute shell commands on Alt+click links",
+
+  "permissions": [
+    "storage",
+    "nativeMessaging",
+    "activeTab"
+  ],
+
+  "content_scripts": [{
+    "matches": ["<all_urls>"],
+    "js": ["content.js"]
+  }],
+
+  "background": {
+    "scripts": ["background.js"]
+  },
+
+  "options_ui": {
+    "page": "options.html"
+  },
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "altclickshell@example.com"
+    }
+  }
+}
