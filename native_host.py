@@ -4,6 +4,7 @@ import sys
 import json
 import struct
 import subprocess
+import os
 
 def get_message():
     raw_length = sys.stdin.buffer.read(4)
@@ -22,7 +23,12 @@ def send_message(message):
 def execute_command(command, url):
     try:
         full_command = f"{command} {url}"
-        result = subprocess.run(full_command, shell=True, capture_output=True, text=True)
+
+        # Set a comprehensive PATH that includes common installation locations
+        env = os.environ.copy()
+        env['PATH'] = '/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:' + env.get('PATH', '')
+
+        result = subprocess.run(full_command, shell=True, capture_output=True, text=True, env=env)
         return {
             'success': True,
             'stdout': result.stdout,
