@@ -1,0 +1,19 @@
+{
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/.hg/store/**": true,
+        "**/.dart_tool": true,
+        "**/exp*/**": true,
+        "**/*__audio__*/**": true,
+        "**/*__raw__*/**": true,
+        "**/*__subsets__*/**": true,
+        "**/*__refs__*/**": true,
+        "**/*__media__*/**": true,
+        "**/*__pycache__*/**": true,
+        "**/*data_sets*/**": true,
+        "**/.git/**": true,
+        "**/node_modules/**": true,
+        "**/.vscode/**": true
+    }
+}
