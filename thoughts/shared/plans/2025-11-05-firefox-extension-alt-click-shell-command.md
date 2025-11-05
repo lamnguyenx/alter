@@ -1,8 +1,8 @@
-# Firefox Extension: Alt+Click Shell Command Implementation Plan
+# Firefox Extension: Configurable Click Shell Command Implementation Plan
 
 ## Overview
 
-Create a Firefox WebExtensions addon that intercepts Alt+click events on links and executes a configurable shell command on the host machine with the link URL as an argument. The extension includes a settings page for command configuration and testing.
+Create a Firefox WebExtensions addon that intercepts configurable keyboard modifier + click events on links and executes a configurable shell command on the host machine with the link URL as an argument. The extension includes a settings page for command configuration, keyboard shortcut configuration, and testing.
 
 ## Current State Analysis
 
@@ -26,17 +26,17 @@ Create a Firefox WebExtensions addon that intercepts Alt+click events on links a
 ## Desired End State
 
 A fully functional Firefox extension that:
-- Captures Alt+click on any hyperlink
+- Captures configurable modifier + click on any hyperlink
 - Executes user-configured shell command with link URL
-- Provides settings UI for command input and testing
+- Provides settings UI for command input, keyboard shortcut configuration, and testing
 - Works across all websites with proper permissions
 
 ### Key Deliverables:
 - Extension manifest with all required permissions
-- Content script for click interception
+- Content script for configurable click interception
 - Background script for native messaging
 - Native messaging application (Python/Node.js)
-- Settings/options page with command input and test button
+- Settings/options page with command input, keyboard shortcut configuration, and test button
 - Installation instructions for different platforms
 
 ## What We're NOT Doing
@@ -65,9 +65,9 @@ Set up basic WebExtensions structure with manifest, content scripts, and backgro
 ```json
 {
   "manifest_version": 2,
-  "name": "Alt+Click Shell Command",
+  "name": "Configurable Click Shell Command",
   "version": "0.0.1",
-  "description": "Execute shell commands on Alt+click links",
+  "description": "Execute shell commands on configurable modifier + click links",
 
   "permissions": [
     "storage",
@@ -98,7 +98,7 @@ Set up basic WebExtensions structure with manifest, content scripts, and backgro
 
 #### 2. Create Content Script (`content.js`)
 **File**: `content.js`
-**Changes**: Create new file to intercept Alt+click events
+**Changes**: Create new file to intercept configurable modifier + click events
 
 ```javascript
 // Create floating notification function
@@ -137,10 +137,36 @@ const notification = document.createElement('div');
   }, 3000);
 }
 
-document.addEventListener('click', function(e) {
-  if (e.altKey && e.target.tagName === 'A') {
+// Load shortcut configuration with platform-aware defaults
+const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+let shortcutConfig = {
+  ctrl: isMac ? false : true,
+  alt: true,
+  shift: false,
+  meta: isMac ? true : false
+};
+
+browser.storage.local.get('shortcutConfig').then((result) => {
+  if (result.shortcutConfig) {
+    shortcutConfig = result.shortcutConfig;
+  }
+});
+
+// Function to check if current modifiers match configured shortcut
+function modifiersMatch(e) {
+  return (
+    e.ctrlKey === shortcutConfig.ctrl &&
+    e.altKey === shortcutConfig.alt &&
+    e.shiftKey === shortcutConfig.shift &&
+    e.metaKey === shortcutConfig.meta
+  );
+}
+
+// Function to handle configurable modifier + click
+function handleShortcutClick(e) {
+  if (modifiersMatch(e) && e.target.tagName === 'A') {
     e.preventDefault();
-    e.stopPropagation();
+    e.stopImmediatePropagation();
 
     const url = e.target.href;
 
@@ -152,7 +178,11 @@ document.addEventListener('click', function(e) {
 
     browser.runtime.sendMessage({ action: 'executeCommand', url: url });
   }
-});
+}
+
+// Listen for both mousedown and click events with capturing
+document.addEventListener('mousedown', handleShortcutClick, true);
+document.addEventListener('click', handleShortcutClick, true);
 ```
 
 #### 3. Create Background Script (`background.js`)
@@ -163,7 +193,13 @@ document.addEventListener('click', function(e) {
 browser.runtime.onMessage.addListener((message) => {
   if (message.action === 'executeCommand') {
     browser.storage.local.get('shellCommand').then((result) => {
-      const command = result.shellCommand || 'echo';
+      let command = result.shellCommand || 'echo';
+      // Replace {url} placeholder or append URL if no placeholder
+      if (command.includes('{url}')) {
+        command = command.replace(/\{url\}/g, message.url);
+      } else {
+        command = `${command} ${message.url}`;
+      }
       browser.runtime.sendNativeMessage('altclickshell', {
         command: command,
         url: message.url
@@ -250,7 +286,7 @@ while True:
 ```json
 {
   "name": "altclickshell",
-  "description": "Alt+Click Shell Command Host",
+  "description": "Configurable Click Shell Command Host",
   "path": "/path/to/native_host.py",
   "type": "stdio",
   "allowed_extensions": ["altclickshell@example.com"]
@@ -288,22 +324,61 @@ Implement options page for command configuration and testing.
     body { font-family: Arial, sans-serif; padding: 20px; }
     .form-group { margin: 20px 0; }
     label { display: block; margin-bottom: 5px; }
-    input[type="text"] { width: 100%; padding: 8px; }
+    input[type="text"], textarea { width: 100%; padding: 8px; font-family: inherit; }
+    textarea { resize: vertical; }
     button { padding: 8px 16px; margin: 5px; }
     .result { margin-top: 10px; padding: 10px; background: #f0f0f0; }
+    .shortcut-group { display: flex; gap: 10px; align-items: center; }
+    .shortcut-group label { margin: 0; display: inline; }
+    .command-preview { display: flex; justify-content: space-between; align-items: flex-start; background: #f9f9f9; padding: 8px; border-radius: 4px; font-family: monospace; white-space: pre-wrap; word-break: break-all; }
+    .command-preview span { flex: 1; margin-right: 10px; }
+    .command-preview button { flex-shrink: 0; }
   </style>
 </head>
 <body>
-  <h1>Alt+Click Shell Command Settings</h1>
+  <h1>Configurable Click Shell Command Settings</h1>
 
   <div class="form-group">
-    <label for="command">Shell Command:</label>
-    <input type="text" id="command" placeholder="e.g., open">
-    <small>The command will be executed with the link URL as the last argument</small>
+    <label>Keyboard Modifiers:</label>
+    <div class="shortcut-group">
+      <label><input type="checkbox" id="ctrl"> <span id="ctrl-label">Ctrl</span></label>
+      <label><input type="checkbox" id="alt"> Alt</label>
+      <label><input type="checkbox" id="shift"> Shift</label>
+      <label><input type="checkbox" id="meta"> <span id="meta-label">Meta</span></label>
+    </div>
+    <small>Select the modifier keys to combine with click</small>
   </div>
 
-  <button id="save">Save Command</button>
-  <button id="test">Test with example.com</button>
+  <div class="form-group">
+  <label for="templates">Command Templates:</label>
+  <select id="templates">
+    <option value="adb shell am start -n org.mozilla.firefox/org.mozilla.fenix.IntentReceiverActivity -a android.intent.action.VIEW -d {{url}}" selected>Send link to Firefox on Android via ADB</option>
+  <option value="">-- Select a template --</option>
+  </select>
+  </div>
+
+  <div class="form-group">
+  <label for="command">Shell Command:</label>
+  <textarea id="command" placeholder="e.g., open" rows="6" style="width: 100%; resize: vertical; max-height: 120px; overflow-y: auto;"></textarea>
+  <small>The command will be executed with the link URL as the last argument. Use <strong style="color: #8B0000;">{{url}}</strong> for URL placeholder.</small>
+  <div id="url-placeholder-banner" class="banner" style="display: none; background: #ffe6e6; color: #8B0000; padding: 5px; margin-top: 5px; border-radius: 3px; font-size: 14px;">⚠️ Your command does not contain <strong>{{url}}</strong>. The clicked link URL will be appended at the end.</div>
+  </div>
+
+  <div class="form-group">
+  <label for="preview-url">Preview URL:</label>
+  <input type="text" id="preview-url" placeholder="https://example.com">
+  <small>URL used for command preview (does not affect actual execution)</small>
+  </div>
+
+  <div class="form-group">
+    <label>Command Preview:</label>
+    <div class="command-preview">
+      <span id="preview-command">echo 'https://example.com'</span>
+      <button id="run-now">Run Now</button>
+    </div>
+  </div>
+
+  <button id="run-now">Run Now</button>
 
   <div id="result" class="result" style="display: none;"></div>
 
@@ -318,28 +393,103 @@ Implement options page for command configuration and testing.
 
 ```javascript
 document.addEventListener('DOMContentLoaded', function() {
+  const templatesSelect = document.getElementById('templates');
   const commandInput = document.getElementById('command');
-  const saveButton = document.getElementById('save');
-  const testButton = document.getElementById('test');
+  const previewUrlInput = document.getElementById('preview-url');
+  const previewCommand = document.getElementById('preview-command');
+  const ctrlCheckbox = document.getElementById('ctrl');
+  const altCheckbox = document.getElementById('alt');
+  const shiftCheckbox = document.getElementById('shift');
+  const metaCheckbox = document.getElementById('meta');
+  const ctrlLabel = document.getElementById('ctrl-label');
+  const metaLabel = document.getElementById('meta-label');
+  const runNowButton = document.getElementById('run-now');
   const resultDiv = document.getElementById('result');
 
-  // Load saved command
-  browser.storage.local.get('shellCommand').then((result) => {
-    if (result.shellCommand) {
-      commandInput.value = result.shellCommand;
+  // Auto-save function
+  function autoSave() {
+    const command = commandInput.value.trim();
+    const previewUrl = previewUrlInput.value.trim();
+    const shortcutConfig = {
+      ctrl: ctrlCheckbox.checked,
+      alt: altCheckbox.checked,
+      shift: shiftCheckbox.checked,
+      meta: metaCheckbox.checked
+    };
+    browser.storage.local.set({ shellCommand: command, shortcutConfig: shortcutConfig, previewUrl: previewUrl });
+  }
+
+  // Platform-aware labels
+  const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+  ctrlLabel.textContent = isMac ? 'Ctrl' : 'Ctrl';  // Ctrl is still Ctrl
+  metaLabel.textContent = isMac ? 'Cmd' : 'Meta';
+
+  // Function to update command preview and banner
+  function updatePreview() {
+    const command = commandInput.value.trim();
+    const previewUrl = previewUrlInput.value.trim() || 'https://example.com';
+    const banner = document.getElementById('url-placeholder-banner');
+
+  if (command.includes('{{url}}')) {
+  banner.style.display = 'none';
+    const escapedUrl = shellQuote(previewUrl);
+  const preview = command.replace(/\{\{url\}\}/g, escapedUrl);
+  previewCommand.textContent = preview;
+  } else {
+      banner.style.display = 'block';
+      const escapedUrl = shellQuote(previewUrl);
+      previewCommand.textContent = `${command} ${escapedUrl}`;
+    }
+  }
+
+  // Template selection
+  templatesSelect.addEventListener('change', function() {
+    if (templatesSelect.value) {
+      commandInput.value = templatesSelect.value;
+      updatePreview();
     }
   });
 
-  // Save command
-  saveButton.addEventListener('click', function() {
-    const command = commandInput.value.trim();
-    browser.storage.local.set({ shellCommand: command }).then(() => {
-      showResult('Command saved successfully!', 'success');
+  // Update preview on command or preview URL input change
+  commandInput.addEventListener('input', updatePreview);
+  commandInput.addEventListener('input', autoSave);
+  previewUrlInput.addEventListener('input', updatePreview);
+  previewUrlInput.addEventListener('input', autoSave);
+
+  // Auto-save on checkbox changes
+  [ctrlCheckbox, altCheckbox, shiftCheckbox, metaCheckbox].forEach(checkbox => {
+    checkbox.addEventListener('change', () => {
+      autoSave();
     });
   });
 
-  // Test command
-  testButton.addEventListener('click', function() {
+  // Load saved settings
+  browser.storage.local.get(['shellCommand', 'shortcutConfig', 'previewUrl']).then((result) => {
+    if (result.shellCommand) {
+      commandInput.value = result.shellCommand;
+    } else {
+      // No saved command, use the default selected template
+      const selectedTemplate = templatesSelect.value;
+      if (selectedTemplate) {
+        commandInput.value = selectedTemplate;
+      }
+    }
+    if (result.previewUrl) {
+      previewUrlInput.value = result.previewUrl;
+    }
+    // Load shortcut config with platform-aware defaults
+    const defaultCtrl = !isMac;  // Ctrl on non-Mac
+    const defaultMeta = isMac;   // Cmd on Mac
+    ctrlCheckbox.checked = (result.shortcutConfig && result.shortcutConfig.ctrl !== undefined) ? result.shortcutConfig.ctrl : defaultCtrl;
+    altCheckbox.checked = (result.shortcutConfig && result.shortcutConfig.alt !== undefined) ? result.shortcutConfig.alt : true;
+    shiftCheckbox.checked = (result.shortcutConfig && result.shortcutConfig.shift !== undefined) ? result.shortcutConfig.shift : false;
+    metaCheckbox.checked = (result.shortcutConfig && result.shortcutConfig.meta !== undefined) ? result.shortcutConfig.meta : defaultMeta;
+
+    updatePreview();
+  });
+
+  // Run now
+  runNowButton.addEventListener('click', function() {
     const command = commandInput.value.trim();
     if (!command) {
       showResult('Please enter a command first', 'error');
@@ -376,8 +526,15 @@ document.addEventListener('DOMContentLoaded', function() {
 - [ ] Settings persist: Reload page, command remains saved
 
 #### Manual Verification:
-- [ ] Command saves to storage
-- [ ] Test button executes command with example.com
+- [ ] Command and shortcut settings save to storage
+- [ ] Preview URL setting saves and loads
+- [ ] ADB template is selected by default and populates command input
+- [ ] Template selection populates command input
+- [ ] Multiline command input with scrolling works
+- [ ] {{url}} placeholder is bold and red in help text
+- [ ] Banner appears when {{url}} is missing from command
+- [ ] Command preview updates with configurable URL
+- [ ] Run Now button executes command with preview URL
 - [ ] Results display properly for success/error cases
 
 ## Phase 4: Installation & Testing
@@ -392,9 +549,9 @@ Complete installation setup and comprehensive testing.
 **Changes**: Document setup process
 
 ```markdown
-# Alt+Click Shell Command Firefox Extension
+# Configurable Click Shell Command Firefox Extension
 
-Execute shell commands when Alt+clicking links.
+Execute shell commands when using a configurable keyboard shortcut + clicking links.
 
 ## Installation
 
@@ -444,8 +601,9 @@ print(f"Executing: {full_command}", file=sys.stderr)
 - [ ] Native messaging connects: No "native application not found" errors
 
 #### Manual Verification:
-- [ ] Alt+click on link executes configured command
-- [ ] Settings page saves and tests commands correctly
+- [ ] Configured shortcut + click on link executes configured command
+- [ ] Settings page saves commands, shortcuts, preview URL, and tests correctly
+- [ ] Default ADB template selection and other templates work properly
 - [ ] Works across different websites
 - [ ] Error handling for invalid commands
 - [ ] No security prompts or blocks from Firefox
@@ -465,8 +623,8 @@ print(f"Executing: {full_command}", file=sys.stderr)
 ### Manual Testing Steps:
 1. Install extension temporarily
 2. Set up native messaging host
-3. Configure a test command (e.g., `echo`)
-4. Alt+click various links
+3. Configure a test command (e.g., `echo`) and keyboard shortcut (e.g., Ctrl+Alt)
+4. Use configured shortcut + click various links
 5. Verify commands execute in terminal/console
 6. Test error cases (invalid commands, network issues)
 7. Test settings page functionality

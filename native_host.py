@@ -5,6 +5,7 @@ import json
 import struct
 import subprocess
 import os
+import shlex
 
 def get_message():
     raw_length = sys.stdin.buffer.read(4)
@@ -20,9 +21,14 @@ def send_message(message):
     sys.stdout.buffer.write(encoded)
     sys.stdout.buffer.flush()
 
-def execute_command(command, url):
+def execute_command(command_template, url):
     try:
-        full_command = f"{command} {url}"
+        # Replace {{url}} placeholder with properly escaped URL
+        escaped_url = shlex.quote(url)
+        if '{{url}}' in command_template:
+            full_command = command_template.replace('{{url}}', escaped_url)
+        else:
+            full_command = f"{command_template} {escaped_url}"
 
         # Set a comprehensive PATH that includes common installation locations
         env = os.environ.copy()

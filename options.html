@@ -6,30 +6,61 @@
     body { font-family: Arial, sans-serif; padding: 20px; }
     .form-group { margin: 20px 0; }
     label { display: block; margin-bottom: 5px; }
-    input[type="text"] { width: 100%; padding: 8px; }
+    input[type="text"], textarea { width: 100%; padding: 8px; font-family: inherit; }
+    textarea { resize: vertical; }
     button { padding: 8px 16px; margin: 5px; }
     .result { margin-top: 10px; padding: 10px; background: #f0f0f0; }
+    .shortcut-group { display: flex; gap: 10px; align-items: center; }
+    .shortcut-group label { margin: 0; display: inline; }
+    .command-preview { display: flex; justify-content: space-between; align-items: flex-start; background: #f9f9f9; padding: 8px; border-radius: 4px; font-family: monospace; white-space: pre-wrap; word-break: break-all; }
+    .command-preview span { flex: 1; margin-right: 10px; }
+    .command-preview button { flex-shrink: 0; }
   </style>
 </head>
 <body>
-  <h1>Alt+Click Shell Command Settings</h1>
+  <h1>Configurable Click Shell Command Settings</h1>
+
+  <div class="form-group">
+    <label>Keyboard Modifiers:</label>
+    <div class="shortcut-group">
+      <label><input type="checkbox" id="ctrl"> <span id="ctrl-label">Ctrl</span></label>
+      <label><input type="checkbox" id="alt"> Alt</label>
+      <label><input type="checkbox" id="shift"> Shift</label>
+      <label><input type="checkbox" id="meta"> <span id="meta-label">Meta</span></label>
+    </div>
+    <small>Select the modifier keys to combine with click</small>
+  </div>
+
+  <div class="form-group">
+  <label for="templates">Command Templates:</label>
+  <select id="templates">
+      <option value="adb shell am start -n org.mozilla.firefox/org.mozilla.fenix.IntentReceiverActivity -a android.intent.action.VIEW -d {{url}}" selected>Send link to Firefox on Android via ADB</option>
+      <option value="">-- Select a template --</option>
+    </select>
+  </div>
 
   <div class="form-group">
     <label for="command">Shell Command:</label>
-    <input type="text" id="command" placeholder="e.g., open">
-    <small>The command will be executed with the link URL as the last argument</small>
+    <textarea id="command" placeholder="e.g., open" rows="6" style="width: 100%; resize: vertical; max-height: 120px; overflow-y: auto;"></textarea>
+    <small>The command will be executed with the link URL as the last argument. Use <strong style="color: #8B0000;">{{url}}</strong> for URL placeholder.</small>
+    <div id="url-placeholder-banner" class="banner" style="display: none; background: #ffe6e6; color: #8B0000; padding: 5px; margin-top: 5px; border-radius: 3px; font-size: 14px;">⚠️ Your command does not contain <strong>{{url}}</strong>. The clicked link URL will be appended at the end.</div>
   </div>
-
-  <button id="save">Save Command</button>
-  <button id="test">Test with example.com</button>
-
-  <div id="result" class="result" style="display: none;"></div>
 
   <div class="form-group">
-    <label for="log">Log:</label>
-    <textarea id="log" readonly style="width: 100%; height: 150px; font-family: monospace; font-size: 12px;"></textarea>
-    <button id="clearLog">Clear Log</button>
+    <label for="preview-url">Preview URL:</label>
+    <input type="text" id="preview-url" placeholder="https://example.com">
+    <small>URL used for command preview (does not affect actual execution)</small>
   </div>
+
+  <div class="form-group">
+    <label>Command Preview:</label>
+    <div class="command-preview">
+      <span id="preview-command">echo https://example.com</span>
+      <button id="run-now">Run Now</button>
+    </div>
+  </div>
+
+  <div id="result" class="result" style="display: none;"></div>
 
   <script src="options.js"></script>
 </body>

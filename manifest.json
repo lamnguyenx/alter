@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
-  "name": "Alt+Click Shell Command",
+  "name": "Configurable Click Shell Command",
   "version": "0.0.1",
-  "description": "Execute shell commands on Alt+click links",
+  "description": "Execute shell commands on configurable modifier + click links",
 
   "permissions": [
     "storage",

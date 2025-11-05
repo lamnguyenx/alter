@@ -1,9 +1,9 @@
 browser.runtime.onMessage.addListener((message) => {
   if (message.action === 'executeCommand') {
     browser.storage.local.get('shellCommand').then((result) => {
-      const command = result.shellCommand || 'echo';
+      const commandTemplate = result.shellCommand || 'echo';
       browser.runtime.sendNativeMessage('altclickshell', {
-        command: command,
+        command: commandTemplate,
         url: message.url
       });
     });

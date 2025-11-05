@@ -1,11 +1,11 @@
 // Create floating notification function
 function showCommandNotification(command, url) {
-  // Remove existing notification if any
-  const existing = document.getElementById('altclick-notification');
-  if (existing) existing.remove();
+// Remove existing notification if any
+const existing = document.getElementById('altclick-notification');
+if (existing) existing.remove();
 
-  // Create notification element
-  const notification = document.createElement('div');
+// Create notification element
+const notification = document.createElement('div');
   notification.id = 'altclick-notification';
   notification.textContent = `Running: ${command} ${url}`;
   notification.style.cssText = `
@@ -34,10 +34,36 @@ function showCommandNotification(command, url) {
   }, 3000);
 }
 
-document.addEventListener('click', function(e) {
-  if (e.altKey && e.target.tagName === 'A') {
+// Load shortcut configuration with platform-aware defaults
+const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+let shortcutConfig = {
+  ctrl: isMac ? false : true,
+  alt: true,
+  shift: false,
+  meta: isMac ? true : false
+};
+
+browser.storage.local.get('shortcutConfig').then((result) => {
+  if (result.shortcutConfig) {
+    shortcutConfig = result.shortcutConfig;
+  }
+});
+
+// Function to check if current modifiers match configured shortcut
+function modifiersMatch(e) {
+  return (
+    e.ctrlKey === shortcutConfig.ctrl &&
+    e.altKey === shortcutConfig.alt &&
+    e.shiftKey === shortcutConfig.shift &&
+    e.metaKey === shortcutConfig.meta
+  );
+}
+
+// Function to handle configurable modifier + click
+function handleShortcutClick(e) {
+  if (modifiersMatch(e) && e.target.tagName === 'A') {
     e.preventDefault();
-    e.stopPropagation();
+    e.stopImmediatePropagation();
 
     const url = e.target.href;
 
@@ -49,4 +75,8 @@ document.addEventListener('click', function(e) {
 
     browser.runtime.sendMessage({ action: 'executeCommand', url: url });
   }
-});
+}
+
+// Listen for both mousedown and click events with capturing
+document.addEventListener('mousedown', handleShortcutClick, true);
+document.addEventListener('click', handleShortcutClick, true);
