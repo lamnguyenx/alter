@@ -1,0 +1,3 @@
+[submodule "__submodules__/humanlayer/humanlayer"]
+	path = __submodules__/humanlayer/humanlayer
+	url = https://github.com/humanlayer/humanlayer
