@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "ClickShell",
-  "version": "0.0.1",
+  "version": "2025.11.05",
   "description": "Execute shell commands on configurable modifier + click links",
 
   "icons": {
