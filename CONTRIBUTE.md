@@ -12,19 +12,15 @@ Execute shell commands when using a configurable keyboard shortcut + clicking li
 
 3. Install native messaging host:
 
-   **macOS:**
-   - Edit `altclickshell.json` to point to the absolute path of `native_host.py`
-   - Place `altclickshell.json` in: `~/Library/Application Support/Mozilla/NativeMessagingHosts/`
-   - Make `native_host.py` executable: `chmod +x native_host.py`
-
-   **Windows:**
-   - Edit `altclickshell.json` path to point to `native_host.py`
-   - Create registry key: `HKEY_CURRENT_USER\Software\Mozilla\NativeMessagingHosts\altclickshell`
-   - Set default value to path of `altclickshell.json`
-
-   **Linux:**
-   - Place `altclickshell.json` in: `~/.mozilla/native-messaging-hosts/`
-   - Make `native_host.py` executable: `chmod +x native_host.py`
+Run the setup script (one-time setup):
+```bash
+python3 setup.py
+```
+    
+This will automatically:
+- Locate your ClickShell extension installation
+- Create the native messaging manifest with the correct paths
+- Make `native_host.py` executable (on macOS/Linux)
 
 4. Configure command and shortcut in addon options (settings are saved automatically)
 
@@ -57,6 +53,6 @@ This extension executes arbitrary shell commands when you use the configured sho
 - `content.js` - Click interception and UI notifications
 - `background.js` - Native messaging communication
 - `native_host.py` - Python script that executes shell commands
-- `altclickshell.json` - Native messaging host manifest
+- `clickshell.json` - Native messaging host manifest
 - `options.html` - Settings page HTML
 - `options.js` - Settings page logic

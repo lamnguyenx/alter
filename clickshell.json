@@ -1,0 +1,7 @@
+{
+  "name": "clickshell",
+  "description": "Configurable Click Shell Command Host",
+  "path": "/path/to/native_host.py",
+  "type": "stdio",
+  "allowed_extensions": ["clickshell@example.com"]
+}

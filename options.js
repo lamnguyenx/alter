@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
 
-    browser.runtime.sendNativeMessage('altclickshell', {
+    browser.runtime.sendNativeMessage('clickshell', {
       command: command,
       url: previewUrlInput.value.trim() || 'https://example.com'
     }).then((response) => {

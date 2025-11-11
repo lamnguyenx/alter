@@ -2,6 +2,8 @@
 
 A Firefox browser extension that executes shell commands by clicking links with a configurable keyboard shortcut.
 
+**Requirement:** Firefox Developer Edition is required to use this extension.
+
 ## Installation
 
 ### Option 1: Install from GitHub Release (.xpi file)
@@ -11,6 +13,10 @@ A Firefox browser extension that executes shell commands by clicking links with 
 3. Click the gear icon (⚙️) > "Install Add-on From File"
 4. Select the downloaded `clickshell.xpi`
 5. If prompted, allow unsigned extensions (set `xpinstall.signatures.required` to `false` in `about:config` for development)
+6. Run the setup script to configure the native messaging host:
+   ```bash
+   python3 setup.py
+   ```
 
 ### Option 2: Load Temporarily from Source (Development Only)
 

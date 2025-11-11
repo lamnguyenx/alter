@@ -2,7 +2,7 @@
 
 VERSION := $(shell grep '"version"' manifest.json | cut -d'"' -f4)
 XPI_NAME = build/clickshell-$(VERSION).xpi
-FILES = manifest.json background.js content.js options.html options.js mouse-icon.svg
+FILES = manifest.json background.js content.js options.html options.js mouse-icon.svg native_host.py
 
 all: $(XPI_NAME)
 
