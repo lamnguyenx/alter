@@ -1,3 +1,3 @@
-[submodule "__submodules__/humanlayer/humanlayer"]
-	path = __submodules__/humanlayer/humanlayer
-	url = https://github.com/humanlayer/humanlayer
+[submodule "__submodules__/lamnguyenx/humanlayer2"]
+	path = __submodules__/lamnguyenx/humanlayer2
+	url = git@github.com:lamnguyenx/humanlayer2.git
