@@ -105,7 +105,7 @@ function handleShortcutClick(e) {
 
     // Get the current command to show in notification
     browser.storage.local.get('shellCommand').then((result) => {
-      const command = result.shellCommand || 'echo';
+      const command = result.shellCommand || 'echo (no command configured)';
       showCommandNotification(command, url);
     });
 

@@ -11,9 +11,17 @@ document.addEventListener('DOMContentLoaded', function() {
   const metaLabel = document.getElementById('meta-label');
   const runNowButton = document.getElementById('run-now');
   const resultDiv = document.getElementById('result');
+  const saveSettingsButton = document.getElementById('save-settings');
 
-  // Auto-save function
-  function autoSave() {
+  // Track whether form has unsaved changes
+  let hasUnsavedChanges = false;
+
+  function markAsChanged() {
+    hasUnsavedChanges = true;
+    saveSettingsButton.disabled = false;
+  }
+
+  function saveSettings() {
     const command = commandInput.value.trim();
     const previewUrl = previewUrlInput.value.trim();
     const shortcutConfig = {
@@ -22,7 +30,18 @@ document.addEventListener('DOMContentLoaded', function() {
       shift: shiftCheckbox.checked,
       meta: metaCheckbox.checked
     };
-    browser.storage.local.set({ shellCommand: command, shortcutConfig: shortcutConfig, previewUrl: previewUrl });
+    
+    browser.storage.local.set({ 
+      shellCommand: command, 
+      shortcutConfig: shortcutConfig, 
+      previewUrl: previewUrl 
+    }).then(() => {
+      hasUnsavedChanges = false;
+      saveSettingsButton.disabled = true;
+      showResult('Settings saved successfully', 'success');
+    }).catch((error) => {
+      showResult(`Failed to save settings: ${error.message}`, 'error');
+    });
   }
 
   // Platform-aware labels
@@ -62,33 +81,44 @@ document.addEventListener('DOMContentLoaded', function() {
     if (templatesSelect.value) {
       commandInput.value = templatesSelect.value;
       updatePreview();
+      markAsChanged();
     }
   });
 
-  // Update preview on command or preview URL input change
-  commandInput.addEventListener('input', updatePreview);
-  commandInput.addEventListener('input', autoSave);
-  previewUrlInput.addEventListener('input', updatePreview);
-  previewUrlInput.addEventListener('input', autoSave);
+  // Mark as changed on input
+  commandInput.addEventListener('input', () => {
+    updatePreview();
+    markAsChanged();
+  });
 
-  // Auto-save on checkbox changes
+  previewUrlInput.addEventListener('input', () => {
+    updatePreview();
+    markAsChanged();
+  });
+
+  // Mark as changed on checkbox changes
   [ctrlCheckbox, altCheckbox, shiftCheckbox, metaCheckbox].forEach(checkbox => {
     checkbox.addEventListener('change', () => {
-      autoSave();
+      markAsChanged();
     });
   });
 
+  // Handle save button click
+  saveSettingsButton.addEventListener('click', saveSettings);
+
   // Load saved settings
   browser.storage.local.get(['shellCommand', 'shortcutConfig', 'previewUrl']).then((result) => {
-    if (result.shellCommand) {
-      commandInput.value = result.shellCommand;
-    } else {
-      // No saved command, use the default selected template
-      const selectedTemplate = templatesSelect.value;
-      if (selectedTemplate) {
-        commandInput.value = selectedTemplate;
-      }
+    let commandToUse = result.shellCommand;
+    
+    // If no command is saved, use the first template (Firefox Android ADB)
+    if (!commandToUse) {
+      const defaultTemplate = templatesSelect.options[0].value;
+      commandToUse = defaultTemplate;
+      // Immediately save the default template
+      browser.storage.local.set({ shellCommand: commandToUse });
     }
+    
+    commandInput.value = commandToUse;
     if (result.previewUrl) {
       previewUrlInput.value = result.previewUrl;
     }
@@ -101,6 +131,10 @@ document.addEventListener('DOMContentLoaded', function() {
     metaCheckbox.checked = (result.shortcutConfig && result.shortcutConfig.meta !== undefined) ? result.shortcutConfig.meta : defaultMeta;
 
     updatePreview();
+
+    // Reset change tracking since we just loaded saved settings
+    hasUnsavedChanges = false;
+    saveSettingsButton.disabled = true;
   });
 
 

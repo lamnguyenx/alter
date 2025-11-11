@@ -29,18 +29,35 @@ A Firefox browser extension that executes shell commands by clicking links with 
 
 ## Usage
 
+### Via Keyboard Shortcut
 1. Set your keyboard modifier (Ctrl+Alt by default)
 2. Configure your shell command in extension options (e.g., `open {{url}}`)
 3. Hold the modifier and click any link
 4. The command executes with the link URL
 
+### Via Context Menu
+1. Right-click any link in a webpage
+2. Select "Open Link via Clickshell"
+3. A popup notification shows the command being executed
+4. The command executes with that specific link URL
+
+### Via Page Context Menu
+1. Right-click anywhere on a page
+2. Select "Open Page via Clickshell"
+3. The command executes with the current page URL
+
 ## Features
 
-- Configurable shortcuts (Ctrl, Alt, Shift, Cmd combinations)
-- Command templates for common tasks
-- URL placeholders for flexible commands
-- Live preview of executed commands
-- Platform-aware defaults
+- **Configurable shortcuts** - Ctrl, Alt, Shift, Cmd combinations
+- **Command templates** - Pre-configured commands for common tasks
+- **URL placeholders** - Use `{{url}}` to insert the link URL dynamically
+- **Live preview** - See exactly what command will execute before saving
+- **Platform-aware defaults** - Automatically detects Mac vs. Windows/Linux (Cmd vs. Ctrl)
+- **Explicit save button** - Review changes before saving, no silent auto-save
+- **Default template on install** - Automatically sets Firefox Android ADB as default command on first install
+- **Context menu integration** - Right-click on links or pages to execute commands
+- **Popup feedback** - Visual notifications when commands execute, including the actual command and URL
+- **Error handling** - Clear error messages if something goes wrong
 
 ## Security
 
