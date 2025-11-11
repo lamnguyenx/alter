@@ -13,7 +13,8 @@
   "permissions": [
     "storage",
     "nativeMessaging",
-    "activeTab"
+    "activeTab",
+    "contextMenus"
   ],
 
   "content_scripts": [{
